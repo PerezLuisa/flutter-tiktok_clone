@@ -5,6 +5,7 @@ class VideoPlayerItem extends StatefulWidget {
   final String videoUrl;
   final String username;
   final String description;
+
   const VideoPlayerItem({
     super.key,
     required this.videoUrl,
@@ -39,11 +40,17 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
     super.dispose();
   }
 
+  void _toggleLike() {
+    setState(() {
+      isLiked = !isLiked;
+      likes += isLiked ? 1 : -1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Video de fondo
         _controller.value.isInitialized
             ? SizedBox.expand(
                 child: FittedBox(
@@ -58,19 +65,53 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
             : const Center(
                 child: CircularProgressIndicator(color: Colors.white),
               ),
-
-        // Botones derecha
         Positioned(
           right: 10,
           bottom: 100,
           child: Column(
             children: [
-              // Like
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isLiked = !isLiked;
-                    likes += isLiked ? 1 : -1;
-                  });
-                },
-                child: Column(
+                onTap: _toggleLike,
+                child: Icon(
+                  Icons.favorite,
+                  color: isLiked ? Colors.red : Colors.white,
+                  size: 40,
+                ),
+              ),
+              Text('$likes', style: const TextStyle(color: Colors.white)),
+              const SizedBox(height: 20),
+              const Icon(Icons.comment, color: Colors.white, size: 40),
+              const Text('0', style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 20),
+              const Icon(Icons.share, color: Colors.white, size: 40),
+              const Text('Compartir',
+                  style: TextStyle(color: Colors.white, fontSize: 12)),
+            ],
+          ),
+        ),
+        Positioned(
+          left: 10,
+          bottom: 100,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '@${widget.username}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                widget.description,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
