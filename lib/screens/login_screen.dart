@@ -9,18 +9,69 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  // 🔹 Controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   bool _isLoading = false;
 
-  void _login() {
-    setState(() => _isLoading = true);
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+  // 🔐 Método Login mejorado
+  Future<void> _login() async {
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Completa todos los campos"),
+          backgroundColor: Colors.red,
+        ),
       );
-    });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
+  }
+
+  // 🧹 Liberar memoria
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // 🔹 Widget reutilizable para TextField
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool obscure = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey),
+        prefixIcon: Icon(icon, color: Colors.grey),
+        filled: true,
+        fillColor: Colors.grey[900],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
   }
 
   @override
@@ -28,11 +79,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView( // 🔥 Evita overflow en pantallas pequeñas
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
+              const SizedBox(height: 80),
+
+              // 🔥 Título
               const Text(
                 'TikTok Clone',
                 style: TextStyle(
@@ -41,48 +96,36 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 10),
+
               const Text(
                 'Inicia sesión para continuar',
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
+
               const SizedBox(height: 40),
-              // Email
-              TextField(
+
+              // 📧 Email
+              _buildTextField(
                 controller: _emailController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Correo electrónico',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[900],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                hint: 'Correo electrónico',
+                icon: Icons.email,
               ),
+
               const SizedBox(height: 15),
-              // Contraseña
-              TextField(
+
+              // 🔒 Password
+              _buildTextField(
                 controller: _passwordController,
-                obscureText: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Contraseña',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.lock, color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[900],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                hint: 'Contraseña',
+                icon: Icons.lock,
+                obscure: true,
               ),
+
               const SizedBox(height: 25),
-              // Botón login
+
+              // 🔥 Botón
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -99,22 +142,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       : const Text(
                           'Iniciar sesión',
                           style: TextStyle(
-                            color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                 ),
               ),
-              const SizedBox(height: 15),
-              // Registro
+
+              const SizedBox(height: 20),
+
+              // 🔹 Registro
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('¿No tienes cuenta?',
-                      style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    '¿No tienes cuenta?',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Aquí puedes navegar a RegisterScreen
+                    },
                     child: const Text(
                       'Regístrate',
                       style: TextStyle(color: Colors.red),
